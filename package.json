@@ -1,0 +1,35 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.2",
+  "description": "Minesweeper game kata",
+  "main": "index.js",
+  "repository": {},
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "webpack-dev-server --open",
+    "test": "jest --verbose"
+  },
+  "engines": {
+    "node": ">=10.18.1 <14"
+  },
+  "author": "Antoine Lépée <antoine@evaneos.com>",
+  "devDependencies": {
+    "@types/jest": "^25.1.3",
+    "@types/node": "^13.7.6",
+    "@types/react": "^16.9.23",
+    "@types/react-dom": "^16.9.5",
+    "@types/uuid": "^7.0.0",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.2.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.8.2",
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
+  },
+  "dependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "private": true
+}
