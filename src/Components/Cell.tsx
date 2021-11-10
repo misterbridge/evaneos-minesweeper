@@ -1,9 +1,11 @@
-import React from 'react';
-import { CellStatus } from '../Domain/Cell';
+import React, { useCallback } from 'react';
+import styled from 'styled-components';
+import { CellAction, CellStatus } from '../Domain/Cell';
 
 type CellProps = {
     status: CellStatus;
-    onclick: Function;
+    onClick: (index: number, action: CellAction) => void;
+    index: number;
 };
 
 const emojis = {
@@ -13,32 +15,41 @@ const emojis = {
     detonated: '💥',
 };
 
-const cellStyle = (status: CellStatus): React.CSSProperties => ({
-    width: '40px',
-    height: '40px',
-    textAlign: 'center',
-    lineHeight: '40px',
-    border: '1px solid black',
-    boxSizing: 'border-box',
-    cursor: 'pointer',
-    backgroundColor:
-        status === 'untouched' || status === 'flagged' ? '#ccc' : undefined,
-});
+interface WrapperProps extends React.HTMLAttributes<HTMLDivElement> {
+    status: CellStatus;
+}
+const Wrapper = styled.div<WrapperProps>`
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    border: 1px solid black;
+    box-sizing: border-box;
+    cursor: pointer;
+    background-color: ${({ status }) =>
+        status === 'untouched' || status === 'flagged' ? '#ccc' : undefined};
+`;
 
-export const Cell: React.FunctionComponent<CellProps> = props => {
+export const Cell: React.FunctionComponent<CellProps> = ({
+    onClick,
+    status,
+    index,
+}) => {
+    const handleClick = useCallback(
+        (e: React.MouseEvent) => {
+            e.preventDefault();
+            onClick(index, e.button === 0 ? 'dig' : 'flag');
+        },
+        [onClick, index]
+    );
+
     return (
-        <div
-            onClick={ev => {
-                ev.preventDefault();
-                props.onclick(ev);
-            }}
-            onContextMenu={ev => {
-                ev.preventDefault();
-                props.onclick(ev);
-            }}
-            style={cellStyle(props.status)}
+        <Wrapper
+            onClick={handleClick}
+            onContextMenu={handleClick}
+            status={status}
         >
-            {emojis[props.status]}
-        </div>
+            {emojis[status]}
+        </Wrapper>
     );
 };
