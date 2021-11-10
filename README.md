@@ -28,13 +28,13 @@ En repartant de cette base, créez votre version du jeu.
 
 ## Installation
 
-`make install`
+`npm install`
 
-`make start`
+`npm start`
 
 ## Tests
 
-`make test`
+`npm test`
 
 ## Challenges
 
