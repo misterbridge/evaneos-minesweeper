@@ -8,6 +8,7 @@ export class Grid {
     private _cells: Cells;
 
     static generate(row: number, column: number, minesCount: number): Grid {
+        // Create all cells
         const length = row * column;
         let cells: Cells = [];
         for (let i = 0; i < length; i++) {
@@ -15,6 +16,7 @@ export class Grid {
             cells.push(cell);
         }
 
+        // Shuffle the cells so bombs are randomly positionned
         let index = -1;
         while (++index < length) {
             const rand = index + Math.floor(Math.random() * (length - index));
@@ -79,7 +81,7 @@ export class Grid {
     isVictorious = () => {
         for (let cell of this) {
             if (
-                (cell.dug === false && cell.flagged === false) ||
+                (cell.trapped === false && cell.dug === false) ||
                 cell.detonated === true
             ) {
                 return false;

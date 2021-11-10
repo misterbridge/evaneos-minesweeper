@@ -10,7 +10,8 @@ describe('Rules', () => {
 
     test('a game is lost if a cell with a bomb has been dug', () => {
         const cellWithBomb = Cell.withBomb();
-        const grid = new Grid(1, [cellWithBomb]);
+        const cellWithoutBomb = Cell.withoutBomb();
+        const grid = new Grid(1, [cellWithBomb, cellWithoutBomb]);
         expect(grid.isDefeated()).toBe(false);
         expect(grid.isVictorious()).toBe(false);
 
@@ -21,12 +22,23 @@ describe('Rules', () => {
     });
 
     test('a game is won if every cell without bomb has been dug', () => {
+        const cellWithBomb = Cell.withBomb();
         const cellWithoutBomb = Cell.withoutBomb();
-        const grid = new Grid(1, [cellWithoutBomb]);
+        const otherCellWithoutBomb = Cell.withoutBomb();
+        const grid = new Grid(1, [
+            cellWithoutBomb,
+            cellWithBomb,
+            otherCellWithoutBomb,
+        ]);
         expect(grid.isDefeated()).toBe(false);
         expect(grid.isVictorious()).toBe(false);
 
-        const gridDug = grid.sendActionToCell(0, 'dig');
+        let gridDug = grid.sendActionToCell(0, 'dig');
+
+        expect(gridDug.isDefeated()).toBe(false);
+        expect(gridDug.isVictorious()).toBe(false);
+
+        gridDug = gridDug.sendActionToCell(2, 'dig');
 
         expect(gridDug.isDefeated()).toBe(false);
         expect(gridDug.isVictorious()).toBe(true);

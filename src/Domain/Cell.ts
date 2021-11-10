@@ -31,6 +31,10 @@ export class Cell {
         return new Cell(this._bomb, false, true);
     }
 
+    get trapped(): boolean {
+        return this._bomb;
+    }
+
     get detonated(): boolean {
         return this._bomb && this.dug;
     }
