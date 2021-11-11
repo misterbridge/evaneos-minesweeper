@@ -53,6 +53,7 @@ export const Grid: React.FunctionComponent = () => {
                     <Cell
                         key={index}
                         status={cell.status}
+                        trappedNeighbors={cell.trappedNeighbors}
                         onClick={handleClick}
                         index={index}
                     />

@@ -40,6 +40,33 @@ export class Grid {
             );
         }
 
+        const row = Math.floor(cells.length / column);
+        // Inform cells about their neighborhood
+        cells.forEach((cell, index) => {
+            if (!cell.trapped) {
+                let trappedNeighbors = 0;
+                const x = index % column;
+                const y = Math.floor(index / column);
+                // Left
+                if (x > 0 && cells[column * y + x - 1].trapped) {
+                    trappedNeighbors += 1;
+                }
+                // Up
+                if (y > 0 && cells[column * (y - 1) + x].trapped) {
+                    trappedNeighbors += 1;
+                }
+                // Right
+                if (x < column - 1 && cells[column * y + x + 1].trapped) {
+                    trappedNeighbors += 1;
+                }
+                // Down
+                if (y < row - 1 && cells[column * (y + 1) + x].trapped) {
+                    trappedNeighbors += 1;
+                }
+                cell.setTrappedNeighbors(trappedNeighbors);
+            }
+        });
+
         this._column = column;
         this._cells = cells;
     }

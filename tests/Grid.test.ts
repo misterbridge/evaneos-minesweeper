@@ -87,4 +87,30 @@ describe(Grid, () => {
             expect(mineCount).toBe(10);
         });
     });
+
+    describe('constructor', () => {
+        test('it informs the cells about their trapped neighborhood', () => {
+            const cellWithBomb = Cell.withBomb();
+            const cellWithoutBomb1 = Cell.withoutBomb();
+            const cellWithoutBomb2 = Cell.withoutBomb();
+            const cellWithoutBomb3 = Cell.withoutBomb();
+            const cellWithoutBomb4 = Cell.withoutBomb();
+            const cellWithoutBomb5 = Cell.withoutBomb();
+            const cellWithoutBomb6 = Cell.withoutBomb();
+
+            // prettier-ignore
+            new Grid(3, [
+                cellWithoutBomb1, cellWithBomb,     cellWithoutBomb2,
+                cellWithBomb,     cellWithoutBomb3, cellWithBomb,
+                cellWithoutBomb4, cellWithoutBomb5, cellWithoutBomb6,
+            ]);
+
+            expect(cellWithoutBomb1.trappedNeighbors).toEqual(2);
+            expect(cellWithoutBomb2.trappedNeighbors).toEqual(2);
+            expect(cellWithoutBomb3.trappedNeighbors).toEqual(3);
+            expect(cellWithoutBomb4.trappedNeighbors).toEqual(1);
+            expect(cellWithoutBomb5.trappedNeighbors).toEqual(0);
+            expect(cellWithoutBomb6.trappedNeighbors).toEqual(1);
+        });
+    });
 });

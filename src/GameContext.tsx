@@ -26,13 +26,12 @@ const useStateGridCells = (initialValue: Grid): GridCustomHook => {
     ];
 };
 
-export const GameContext = React.createContext<GameContextProps>(
-    initialContext
-);
+export const GameContext =
+    React.createContext<GameContextProps>(initialContext);
 
-export const GameContextProvider: React.FunctionComponent<
-    React.ReactNode
-> = props => {
+export const GameContextProvider: React.FunctionComponent<React.ReactNode> = (
+    props
+) => {
     const [grid, updateGridCellStatus] = useStateGridCells(initialContext.grid);
 
     return (

@@ -5,6 +5,7 @@ export class Cell {
     private _bomb: boolean;
     private _flagged: boolean;
     private _dug: boolean;
+    private _trappedNeighbors?: number;
 
     static withBomb(): Cell {
         return new Cell(true, false, false);
@@ -14,21 +15,16 @@ export class Cell {
         return new Cell(false, false, false);
     }
 
-    constructor(withBomb: boolean, flagged: boolean, dug: boolean) {
+    constructor(
+        withBomb: boolean,
+        flagged: boolean,
+        dug: boolean,
+        trappedNeighbors?: number
+    ) {
         this._bomb = withBomb;
         this._flagged = flagged;
         this._dug = dug;
-    }
-
-    flag(): Cell {
-        if (this._dug === true) {
-            throw new Error('This cell has already been dug');
-        }
-        return new Cell(this._bomb, !this._flagged, this._dug);
-    }
-
-    dig(): Cell {
-        return new Cell(this._bomb, false, true);
+        this._trappedNeighbors = trappedNeighbors;
     }
 
     get trapped(): boolean {
@@ -58,5 +54,29 @@ export class Cell {
             return 'flagged';
         }
         return 'untouched';
+    }
+
+    get trappedNeighbors(): number {
+        return this._trappedNeighbors || 0;
+    }
+
+    setTrappedNeighbors(n: number) {
+        this._trappedNeighbors = n;
+    }
+
+    flag(): Cell {
+        if (this._dug === true) {
+            throw new Error('This cell has already been dug');
+        }
+        return new Cell(
+            this._bomb,
+            !this._flagged,
+            this._dug,
+            this._trappedNeighbors
+        );
+    }
+
+    dig(): Cell {
+        return new Cell(this._bomb, false, true, this._trappedNeighbors);
     }
 }

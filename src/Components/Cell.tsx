@@ -7,6 +7,7 @@ export const CELL_WIDTH = 40;
 type CellProps = {
     status: CellStatus;
     onClick: (index: number, action: CellAction) => void;
+    trappedNeighbors: number;
     index: number;
 };
 
@@ -36,8 +37,9 @@ const Wrapper = styled.div<WrapperProps>`
 `;
 
 export const Cell: React.FunctionComponent<CellProps> = ({
-    onClick,
     status,
+    onClick,
+    trappedNeighbors,
     index,
 }) => {
     const handleClick = useCallback(
@@ -54,7 +56,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({
             onContextMenu={handleClick}
             status={status}
         >
-            {emojis[status]}
+            {status === 'dug' ? trappedNeighbors || '' : emojis[status]}
         </Wrapper>
     );
 };
