@@ -2,6 +2,8 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 import { CellAction, CellStatus } from '../Domain/Cell';
 
+export const CELL_WIDTH = 40;
+
 type CellProps = {
     status: CellStatus;
     onClick: (index: number, action: CellAction) => void;
@@ -19,15 +21,18 @@ interface WrapperProps extends React.HTMLAttributes<HTMLDivElement> {
     status: CellStatus;
 }
 const Wrapper = styled.div<WrapperProps>`
-    width: 40px;
-    height: 40px;
+    width: ${CELL_WIDTH}px;
+    height: ${CELL_WIDTH}px;
     text-align: center;
     line-height: 40px;
-    border: 1px solid black;
+    border: 2px solid rgb(230, 230, 230);
+    border-radius: 7px;
     box-sizing: border-box;
     cursor: pointer;
     background-color: ${({ status }) =>
-        status === 'untouched' || status === 'flagged' ? '#ccc' : undefined};
+        status === 'untouched' || status === 'flagged'
+            ? 'rgb(200, 200, 200)'
+            : 'rgba(200, 200, 200, 0.3)'};
 `;
 
 export const Cell: React.FunctionComponent<CellProps> = ({

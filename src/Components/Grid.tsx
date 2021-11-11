@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { CellAction } from '../Domain/Cell';
 
 import { GameContext } from '../GameContext';
-import { Cell } from './Cell';
+import { Cell, CELL_WIDTH } from './Cell';
 import { Game } from './Game';
 
 const GameWrapper = styled.div`
@@ -12,6 +12,7 @@ const GameWrapper = styled.div`
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    background-color: rgb(51, 51, 51);
 `;
 
 interface GridWrapperProps {
@@ -19,10 +20,11 @@ interface GridWrapperProps {
 }
 const GridWrapper = styled.div<GridWrapperProps>`
     display: flex;
-    border: 1px solid black;
-    box-sizing: content-box;
     flex-wrap: wrap;
-    width: ${({ column }) => `calc(40px * ${column})`};
+    width: ${({ column }) => `calc(${CELL_WIDTH}px * ${column})`};
+    background-color: rgb(230, 230, 230);
+    padding: 10px;
+    border-radius: 7px;
 `;
 
 export const Grid: React.FunctionComponent = () => {
