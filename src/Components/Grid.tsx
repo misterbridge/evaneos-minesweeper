@@ -7,10 +7,17 @@ import { GameContext } from '../GameContext';
 import { Cell } from './Cell';
 import { Game } from './Game';
 
-interface WrapperProps {
+const GameWrapper = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+`;
+
+interface GridWrapperProps {
     readonly column: number;
 }
-const Wrapper = styled.div<WrapperProps>`
+const GridWrapper = styled.div<GridWrapperProps>`
     display: flex;
     border: 1px solid black;
     box-sizing: content-box;
@@ -37,9 +44,9 @@ export const Grid: React.FunctionComponent = () => {
     );
 
     return (
-        <React.Fragment>
+        <GameWrapper>
             <Game gameOver={gameOver} />
-            <Wrapper column={grid.column}>
+            <GridWrapper column={grid.column}>
                 {grid.map((cell, index) => (
                     <Cell
                         key={index}
@@ -48,7 +55,7 @@ export const Grid: React.FunctionComponent = () => {
                         index={index}
                     />
                 ))}
-            </Wrapper>
-        </React.Fragment>
+            </GridWrapper>
+        </GameWrapper>
     );
 };
