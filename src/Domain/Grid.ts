@@ -1,5 +1,12 @@
 import { Cell, CellAction } from './Cell';
 
+export enum Direction {
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT,
+}
+
 export type Cells = Array<Cell>;
 
 export class Grid {
@@ -29,6 +36,100 @@ export class Grid {
         return new Grid(column, cells);
     }
 
+    static getCellIndexInDirection(
+        column: number,
+        row: number,
+        index: number,
+        direction: Direction
+    ): number | undefined {
+        const x = index % column;
+        const y = Math.floor(index / column);
+        switch (direction) {
+            case Direction.UP:
+                return y > 0 ? column * (y - 1) + x : undefined;
+            case Direction.RIGHT:
+                return x < column - 1 ? column * y + x + 1 : undefined;
+            case Direction.DOWN:
+                return y < row - 1 ? column * (y + 1) + x : undefined;
+            case Direction.LEFT:
+                return x > 0 ? column * y + x - 1 : undefined;
+            default:
+                return undefined;
+        }
+    }
+
+    static digAndExploreCells(
+        column: number,
+        cells: Cells,
+        cellIndex: number
+    ): Cells {
+        const row = Math.floor(cells.length / column);
+        const cellsToExplore: Array<[number, Cell]> = [
+            [cellIndex, cells[cellIndex]],
+        ];
+
+        function checkAndAddInDirection(
+            column: number,
+            row: number,
+            originCellIndex: number,
+            direction: Direction
+        ) {
+            const checkedCellIndex = Grid.getCellIndexInDirection(
+                column,
+                row,
+                originCellIndex,
+                direction
+            );
+            if (typeof checkedCellIndex !== 'undefined') {
+                const checkedCell = cells[checkedCellIndex];
+                if (checkedCell && checkedCell.status === 'untouched') {
+                    cellsToExplore.push([checkedCellIndex, checkedCell]);
+                }
+            }
+        }
+
+        let exploreIndex = 0;
+        while (exploreIndex < cellsToExplore.length) {
+            const [exploredCellIndex, exploredCell] =
+                cellsToExplore[exploreIndex];
+            cells[exploredCellIndex] = exploredCell.dig();
+
+            if (
+                !cells[exploredCellIndex].detonated &&
+                cells[exploredCellIndex].trappedNeighbors === 0
+            ) {
+                checkAndAddInDirection(
+                    column,
+                    row,
+                    exploredCellIndex,
+                    Direction.UP
+                );
+                checkAndAddInDirection(
+                    column,
+                    row,
+                    exploredCellIndex,
+                    Direction.RIGHT
+                );
+                checkAndAddInDirection(
+                    column,
+                    row,
+                    exploredCellIndex,
+                    Direction.DOWN
+                );
+                checkAndAddInDirection(
+                    column,
+                    row,
+                    exploredCellIndex,
+                    Direction.LEFT
+                );
+            }
+
+            exploreIndex += 1;
+        }
+
+        return cells;
+    }
+
     constructor(column: number, cells: Cells) {
         if (!Number.isInteger(column)) {
             throw new TypeError('column count must be an integer');
@@ -45,24 +146,32 @@ export class Grid {
         cells.forEach((cell, index) => {
             if (!cell.trapped) {
                 let trappedNeighbors = 0;
-                const x = index % column;
-                const y = Math.floor(index / column);
-                // Left
-                if (x > 0 && cells[column * y + x - 1].trapped) {
-                    trappedNeighbors += 1;
+
+                function checkTrappedInDirection(
+                    column: number,
+                    row: number,
+                    originCellIndex: number,
+                    direction: Direction
+                ) {
+                    const checkedCellIndex = Grid.getCellIndexInDirection(
+                        column,
+                        row,
+                        originCellIndex,
+                        direction
+                    );
+                    if (
+                        typeof checkedCellIndex !== 'undefined' &&
+                        cells[checkedCellIndex].trapped
+                    ) {
+                        trappedNeighbors += 1;
+                    }
                 }
-                // Up
-                if (y > 0 && cells[column * (y - 1) + x].trapped) {
-                    trappedNeighbors += 1;
-                }
-                // Right
-                if (x < column - 1 && cells[column * y + x + 1].trapped) {
-                    trappedNeighbors += 1;
-                }
-                // Down
-                if (y < row - 1 && cells[column * (y + 1) + x].trapped) {
-                    trappedNeighbors += 1;
-                }
+
+                checkTrappedInDirection(column, row, index, Direction.UP);
+                checkTrappedInDirection(column, row, index, Direction.RIGHT);
+                checkTrappedInDirection(column, row, index, Direction.DOWN);
+                checkTrappedInDirection(column, row, index, Direction.LEFT);
+
                 cell.setTrappedNeighbors(trappedNeighbors);
             }
         });
@@ -91,10 +200,15 @@ export class Grid {
     }
 
     sendActionToCell(cellIndex: number, action: CellAction): Grid {
-        const cells = [...this._cells];
+        let cells = [...this._cells];
         const cell = cells[cellIndex];
 
-        cells[cellIndex] = cell[action]();
+        if (action === 'dig') {
+            cells = Grid.digAndExploreCells(this._column, cells, cellIndex);
+        } else {
+            cells[cellIndex] = cell[action]();
+        }
+
         return new Grid(this._column, cells);
     }
 
