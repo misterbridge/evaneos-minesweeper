@@ -9,6 +9,7 @@ type CellProps = {
     onClick: (index: number, action: CellAction) => void;
     trappedNeighbors: number;
     index: number;
+    disabled: boolean;
 };
 
 const emojis = {
@@ -20,6 +21,7 @@ const emojis = {
 
 interface WrapperProps extends React.HTMLAttributes<HTMLDivElement> {
     status: CellStatus;
+    disabled: boolean;
 }
 const Wrapper = styled.div<WrapperProps>`
     width: ${CELL_WIDTH}px;
@@ -34,6 +36,7 @@ const Wrapper = styled.div<WrapperProps>`
         status === 'untouched' || status === 'flagged'
             ? 'rgb(200, 200, 200)'
             : 'rgba(200, 200, 200, 0.3)'};
+    pointer-events: ${({ disabled }) => (disabled ? 'none' : undefined)};
 `;
 
 export const Cell: React.FunctionComponent<CellProps> = ({
@@ -41,11 +44,12 @@ export const Cell: React.FunctionComponent<CellProps> = ({
     onClick,
     trappedNeighbors,
     index,
+    disabled,
 }) => {
     const handleClick = useCallback(
         (e: React.MouseEvent) => {
             e.preventDefault();
-            onClick(index, e.button === 0 ? 'dig' : 'flag');
+            !disabled && onClick(index, e.button === 0 ? 'dig' : 'flag');
         },
         [onClick, index]
     );
@@ -55,6 +59,7 @@ export const Cell: React.FunctionComponent<CellProps> = ({
             onClick={handleClick}
             onContextMenu={handleClick}
             status={status}
+            disabled={disabled}
         >
             {status === 'dug' ? trappedNeighbors || '' : emojis[status]}
         </Wrapper>

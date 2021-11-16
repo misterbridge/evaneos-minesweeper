@@ -30,19 +30,19 @@ const GridWrapper = styled.div<GridWrapperProps>`
 export const Grid: React.FunctionComponent = () => {
     const { grid, updateGridCellStatus } = React.useContext(GameContext);
 
-    const handleClick = useCallback(
-        (index: number, action: CellAction) => {
-            updateGridCellStatus(index, action);
-        },
-        [updateGridCellStatus]
-    );
-
     const gameOver = useMemo(
         () =>
             (grid.isDefeated() && 'defeat') ||
             (grid.isVictorious() && 'victory') ||
             false,
         [grid]
+    );
+
+    const handleClick = useCallback(
+        (index: number, action: CellAction) => {
+            !gameOver && updateGridCellStatus(index, action);
+        },
+        [updateGridCellStatus]
     );
 
     return (
@@ -56,6 +56,7 @@ export const Grid: React.FunctionComponent = () => {
                         trappedNeighbors={cell.trappedNeighbors}
                         onClick={handleClick}
                         index={index}
+                        disabled={!!gameOver}
                     />
                 ))}
             </GridWrapper>
