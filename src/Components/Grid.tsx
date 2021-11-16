@@ -29,7 +29,8 @@ const GridWrapper = styled.div<GridWrapperProps>`
 `;
 
 export const Grid: React.FunctionComponent = () => {
-    const { grid, updateGridCellStatus } = React.useContext(GameContext);
+    const { grid, updateGridCellStatus, undoGrid } =
+        React.useContext(GameContext);
 
     const gameOver = useMemo(
         () =>
@@ -46,9 +47,20 @@ export const Grid: React.FunctionComponent = () => {
         [updateGridCellStatus]
     );
 
+    const handleClickUndo = useCallback(() => {
+        undoGrid();
+    }, [undoGrid]);
+
     return (
         <GameWrapper>
             <Game gameOver={gameOver} />
+            <button
+                type="button"
+                onClick={handleClickUndo}
+                disabled={!grid.canUndo()}
+            >
+                Undo
+            </button>
             <GridWrapper column={grid.column}>
                 {grid.map((cell, index) => (
                     <Cell

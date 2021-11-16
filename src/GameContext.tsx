@@ -1,17 +1,23 @@
 import React from 'react';
 import { CellAction } from './Domain/Cell';
-import { Grid } from './Domain/Grid';
+import { Cells, Grid } from './Domain/Grid';
 
 type GameContextProps = {
     grid: Grid;
     updateGridCellStatus: (index: number, status: CellAction) => void;
+    undoGrid: () => void;
 };
 
-type GridCustomHook = [Grid, (index: number, action: CellAction) => void];
+type GridCustomHook = [
+    Grid,
+    (index: number, action: CellAction) => void,
+    () => void
+];
 
 const initialContext: GameContextProps = {
     grid: Grid.generate(10, 10, 10),
     updateGridCellStatus: () => {},
+    undoGrid: () => {},
 };
 
 const useStateGridCells = (initialValue: Grid): GridCustomHook => {
@@ -23,6 +29,10 @@ const useStateGridCells = (initialValue: Grid): GridCustomHook => {
             const newGrid = grid.sendActionToCell(index, action);
             setGrid(newGrid);
         },
+        () => {
+            const newGrid = grid.undo();
+            setGrid(newGrid);
+        },
     ];
 };
 
@@ -32,10 +42,12 @@ export const GameContext =
 export const GameContextProvider: React.FunctionComponent<React.ReactNode> = (
     props
 ) => {
-    const [grid, updateGridCellStatus] = useStateGridCells(initialContext.grid);
+    const [grid, updateGridCellStatus, undoGrid] = useStateGridCells(
+        initialContext.grid
+    );
 
     return (
-        <GameContext.Provider value={{ grid, updateGridCellStatus }}>
+        <GameContext.Provider value={{ grid, updateGridCellStatus, undoGrid }}>
             {props.children}
         </GameContext.Provider>
     );

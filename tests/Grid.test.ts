@@ -2,10 +2,6 @@ import { Direction, Grid } from '../src/Domain/Grid';
 import { Cell } from '../src/Domain/Cell';
 
 describe(Grid, () => {
-    test('it needs to be filled', () => {
-        expect(() => new Grid(2, [])).toThrowError(RangeError);
-    });
-
     describe('getByCoordinate', () => {
         test('it get the first cell in grid when asking for x:0 y:0', () => {
             const expected = Cell.withBomb();
@@ -89,6 +85,17 @@ describe(Grid, () => {
     });
 
     describe('constructor', () => {
+        test('it needs to be filled', () => {
+            expect(() => new Grid(2, [])).toThrowError(RangeError);
+        });
+
+        test('it can have previousCells, but they must be the same length as the current ones', () => {
+            const cell = Cell.withoutBomb();
+            expect(() => new Grid(2, [cell, cell], [cell])).toThrowError(
+                RangeError
+            );
+        });
+
         test('it informs the cells about their trapped neighborhood', () => {
             const cellWithBomb = Cell.withBomb();
             const cellWithoutBomb1 = Cell.withoutBomb();
@@ -147,61 +154,79 @@ describe(Grid, () => {
     });
 
     describe('sendActionToCell and digAndExploreCells', () => {
-        test(`digging doesn't explore other cells if there are any trapped neighbor`, () => {
+        test(`it doesn't mutate the grid if digging an already dug cell`, () => {
+            const cellWithBomb = Cell.withBomb();
+            const cellWithoutBomb1 = Cell.withoutBomb();
+
+            // prettier-ignore
+            let grid = new Grid(2, [
+                cellWithBomb,     cellWithoutBomb1,
+            ]);
+
+            grid = grid.sendActionToCell(1, 'dig');
+            const nonMutatedGrid = grid.sendActionToCell(1, 'dig');
+
+            expect(grid).toEqual(nonMutatedGrid);
+        });
+
+        test(`it doesn't explore other cells if there are any trapped neighbor`, () => {
             const cellWithBomb = Cell.withBomb();
             const cellWithoutBomb1 = Cell.withoutBomb();
             const cellWithoutBomb2 = Cell.withoutBomb();
             const cellWithoutBomb3 = Cell.withoutBomb();
 
             // prettier-ignore
-            const grid = new Grid(2, [
+            let grid = new Grid(2, [
                 cellWithBomb,     cellWithoutBomb1,
                 cellWithoutBomb2, cellWithoutBomb3,
             ]);
 
-            grid.sendActionToCell(1, 'dig');
+            grid = grid.sendActionToCell(1, 'dig');
 
-            expect(cellWithoutBomb2.dug).toEqual(false);
-            expect(cellWithoutBomb3.dug).toEqual(false);
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(0, 1)?.dug).toEqual(false);
+            expect(grid.cellByCoodinates(1, 1)?.dug).toEqual(false);
         });
 
-        test(`digging doesn't explore other cells if the cell detonated`, () => {
+        test(`it doesn't explore other cells if the cell detonated`, () => {
             const cellWithBomb = Cell.withBomb();
             const cellWithoutBomb1 = Cell.withoutBomb();
             const cellWithoutBomb2 = Cell.withoutBomb();
             const cellWithoutBomb3 = Cell.withoutBomb();
 
             // prettier-ignore
-            const grid = new Grid(2, [
+            let grid = new Grid(2, [
                 cellWithBomb,     cellWithoutBomb1,
                 cellWithoutBomb2, cellWithoutBomb3,
             ]);
 
-            grid.sendActionToCell(0, 'dig');
+            grid = grid.sendActionToCell(0, 'dig');
 
-            expect(cellWithoutBomb2.dug).toEqual(false);
-            expect(cellWithoutBomb3.dug).toEqual(false);
+            expect(grid.cellByCoodinates(0, 0)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(false);
+            expect(grid.cellByCoodinates(0, 1)?.dug).toEqual(false);
+            expect(grid.cellByCoodinates(1, 1)?.dug).toEqual(false);
         });
 
-        test('digging explore other cells if there are no trapped neighbor', () => {
+        test('it explores other cells if there are no trapped neighbor', () => {
             const cellWithBomb = Cell.withBomb();
             const cellWithoutBomb1 = Cell.withoutBomb();
             const cellWithoutBomb2 = Cell.withoutBomb();
             const cellWithoutBomb3 = Cell.withoutBomb();
 
             // prettier-ignore
-            const  grid = new Grid(2, [
+            let grid = new Grid(2, [
                 cellWithBomb,     cellWithoutBomb1,
                 cellWithoutBomb2, cellWithoutBomb3,
             ]);
 
-            const newGrid = grid.sendActionToCell(3, 'dig');
+            grid = grid.sendActionToCell(3, 'dig');
 
-            expect(newGrid.cellByCoodinates(0, 1)?.dug).toEqual(true);
-            expect(newGrid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(0, 1)?.dug).toEqual(true);
         });
 
-        test('digging explore cells until facing trapped neighbors', () => {
+        test('it explore cells until facing trapped neighbors', () => {
             const cellWithBomb = Cell.withBomb();
             const cellWithoutBomb1 = Cell.withoutBomb();
             const cellWithoutBomb2 = Cell.withoutBomb();
@@ -213,19 +238,89 @@ describe(Grid, () => {
             const cellWithoutBomb8 = Cell.withoutBomb();
 
             // prettier-ignore
-            const  grid = new Grid(3, [
+            let grid = new Grid(3, [
                 cellWithoutBomb1, cellWithoutBomb2, cellWithoutBomb3,
                 cellWithoutBomb4, cellWithBomb,     cellWithoutBomb5,
                 cellWithoutBomb6, cellWithoutBomb7, cellWithoutBomb8,
             ]);
 
-            const newGrid = grid.sendActionToCell(0, 'dig');
+            grid = grid.sendActionToCell(0, 'dig');
 
-            expect(newGrid.cellByCoodinates(0, 1)?.dug).toEqual(true);
-            expect(newGrid.cellByCoodinates(0, 2)?.dug).toEqual(false);
-            expect(newGrid.cellByCoodinates(1, 0)?.dug).toEqual(true);
-            expect(newGrid.cellByCoodinates(1, 2)?.dug).toEqual(false);
-            expect(newGrid.cellByCoodinates(2, 0)?.dug).toEqual(false);
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(2, 0)?.dug).toEqual(false);
+            expect(grid.cellByCoodinates(0, 1)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(0, 2)?.dug).toEqual(false);
+            expect(grid.cellByCoodinates(1, 2)?.dug).toEqual(false);
+        });
+    });
+
+    describe('undo', () => {
+        test('it resets cells to their previous state', () => {
+            const cellWithBomb = Cell.withBomb();
+            const cellWithoutBomb1 = Cell.withoutBomb();
+            const cellWithoutBomb2 = Cell.withoutBomb();
+            const cellWithoutBomb3 = Cell.withoutBomb();
+
+            // prettier-ignore
+            let grid = new Grid(2, [
+                cellWithBomb,     cellWithoutBomb1,
+                cellWithoutBomb2, cellWithoutBomb3,
+            ]);
+
+            grid = grid.sendActionToCell(1, 'dig');
+
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+
+            grid = grid.undo();
+
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(false);
+        });
+
+        test('it cannot reset further than the previous state', () => {
+            const cellWithBomb = Cell.withBomb();
+            const cellWithoutBomb1 = Cell.withoutBomb();
+            const cellWithoutBomb2 = Cell.withoutBomb();
+            const cellWithoutBomb3 = Cell.withoutBomb();
+
+            // prettier-ignore
+            let grid = new Grid(2, [
+                cellWithBomb,     cellWithoutBomb1,
+                cellWithoutBomb2, cellWithoutBomb3,
+            ]);
+
+            grid = grid.sendActionToCell(1, 'dig');
+            grid = grid.sendActionToCell(2, 'dig');
+
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(0, 1)?.dug).toEqual(true);
+
+            grid = grid.undo();
+            grid = grid.undo();
+
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+            expect(grid.cellByCoodinates(0, 1)?.dug).toEqual(false);
+        });
+
+        test('it still works if an already dug cell is dug again', () => {
+            const cellWithBomb = Cell.withBomb();
+            const cellWithoutBomb1 = Cell.withoutBomb();
+            const cellWithoutBomb2 = Cell.withoutBomb();
+            const cellWithoutBomb3 = Cell.withoutBomb();
+
+            // prettier-ignore
+            let grid = new Grid(2, [
+                cellWithBomb,     cellWithoutBomb1,
+                cellWithoutBomb2, cellWithoutBomb3,
+            ]);
+
+            grid = grid.sendActionToCell(1, 'dig');
+
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(true);
+
+            grid = grid.sendActionToCell(1, 'dig');
+            grid = grid.undo();
+
+            expect(grid.cellByCoodinates(1, 0)?.dug).toEqual(false);
         });
     });
 });

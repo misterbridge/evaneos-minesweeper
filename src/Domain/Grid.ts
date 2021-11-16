@@ -13,6 +13,7 @@ export class Grid {
     [key: number]: number;
     private _column: number;
     private _cells: Cells;
+    private _previousCells: Cells | undefined;
 
     static generate(row: number, column: number, minesCount: number): Grid {
         // Create all cells
@@ -130,7 +131,7 @@ export class Grid {
         return cells;
     }
 
-    constructor(column: number, cells: Cells) {
+    constructor(column: number, cells: Cells, previousCells?: Cells) {
         if (!Number.isInteger(column)) {
             throw new TypeError('column count must be an integer');
         }
@@ -138,6 +139,12 @@ export class Grid {
         if (cells.length % column !== 0 || cells.length === 0) {
             throw new RangeError(
                 'cell count must be dividable by column count'
+            );
+        }
+
+        if (previousCells && previousCells.length !== cells.length) {
+            throw new RangeError(
+                'previousCells count must be equal to current cells count'
             );
         }
 
@@ -178,6 +185,7 @@ export class Grid {
 
         this._column = column;
         this._cells = cells;
+        this._previousCells = previousCells;
     }
 
     [Symbol.iterator]() {
@@ -189,6 +197,10 @@ export class Grid {
         thisArg?: any
     ) {
         return this._cells.map(callbackfn);
+    }
+
+    get previousCells() {
+        return this._previousCells;
     }
 
     cellByIndex(index: number): Cell | undefined {
@@ -204,12 +216,24 @@ export class Grid {
         const cell = cells[cellIndex];
 
         if (action === 'dig') {
+            if (cell.dug) return this;
             cells = Grid.digAndExploreCells(this._column, cells, cellIndex);
         } else {
             cells[cellIndex] = cell[action]();
         }
 
-        return new Grid(this._column, cells);
+        return new Grid(this._column, cells, this._cells);
+    }
+
+    canUndo() {
+        return typeof this.previousCells !== 'undefined';
+    }
+
+    undo() {
+        if (this.previousCells) {
+            return new Grid(this._column, this.previousCells);
+        }
+        return this;
     }
 
     isDefeated = () => {
