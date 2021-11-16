@@ -8,6 +8,7 @@ import { Cell, CELL_WIDTH } from './Cell';
 import { Game } from './Game';
 
 const GameWrapper = styled.div`
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
