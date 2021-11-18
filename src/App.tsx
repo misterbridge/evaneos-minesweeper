@@ -1,14 +1,14 @@
 import React from 'react';
 import { render } from 'react-dom/index';
 import { GameContextProvider } from './GameContext';
-import { Grid } from './Components/Grid';
+import { Game } from './Components/Game';
 
 import './App.css';
 
 const App = () => {
     return (
         <GameContextProvider>
-            <Grid />
+            <Game />
         </GameContextProvider>
     );
 };

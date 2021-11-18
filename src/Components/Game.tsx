@@ -1,29 +1,60 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
+
 import styled from 'styled-components';
+import { CellAction } from '../Domain/Cell';
 
-type GameProps = {
-    gameOver: false | 'victory' | 'defeat';
-};
-
-const gameOverMapping: {
-    [k in Exclude<GameProps['gameOver'], false>]: string;
-} = {
-    victory: 'Victory',
-    defeat: 'Defeat',
-};
+import { GameContext } from '../GameContext';
+import { Actions } from './Actions';
+import { GameOver } from './GameOver';
+import { Grid } from './Grid';
 
 const GameWrapper = styled.div`
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgb(230, 230, 230);
-    padding: 20px 40px;
-    border-radius: 7px;
-    box-shadow: 0px 0px 100px -20px black;
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: rgb(51, 51, 51);
 `;
 
-export const Game: React.FunctionComponent<GameProps> = (props) => {
-    if (!props.gameOver) return null;
-    return <GameWrapper>{gameOverMapping[props.gameOver]}</GameWrapper>;
+const GameGridWrapper = styled.div`
+    position: relative;
+`;
+
+export const Game: React.FunctionComponent = () => {
+    const { grid, updateGridCellStatus, undoGrid } =
+        React.useContext(GameContext);
+
+    const gameOver = useMemo(
+        () =>
+            (grid.isDefeated() && 'defeat') ||
+            (grid.isVictorious() && 'victory') ||
+            false,
+        [grid]
+    );
+
+    const handleClick = useCallback(
+        (index: number, action: CellAction) => {
+            !gameOver && updateGridCellStatus(index, action);
+        },
+        [updateGridCellStatus]
+    );
+
+    const handleClickUndo = useCallback(() => {
+        undoGrid();
+    }, [undoGrid]);
+
+    return (
+        <GameWrapper>
+            <Actions canUndo={grid.canUndo} onClickUndo={handleClickUndo} />
+            <GameGridWrapper>
+                <GameOver gameOver={gameOver} />
+                <Grid
+                    grid={grid}
+                    onClickCell={handleClick}
+                    gameIsOver={!!gameOver}
+                />
+            </GameGridWrapper>
+        </GameWrapper>
+    );
 };
