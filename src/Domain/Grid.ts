@@ -8,12 +8,21 @@ export enum Direction {
 }
 
 export type Cells = Array<Cell>;
+type ScoreInfos = {
+    startTime?: number | undefined;
+    undosCount: number;
+    flaggedIndexes: number[];
+};
+
+export const COST_PER_UNDO = 5;
+export const COST_PER_FLAG = 1;
+export const COST_PER_SECOND = 0.2;
 
 export class Grid {
-    [key: number]: number;
     private _column: number;
     private _cells: Cells;
     private _previousCells: Cells | undefined;
+    private _scoreInfos: ScoreInfos;
 
     static generate(row: number, column: number, minesCount: number): Grid {
         // Create all cells
@@ -131,7 +140,15 @@ export class Grid {
         return cells;
     }
 
-    constructor(column: number, cells: Cells, previousCells?: Cells) {
+    constructor(
+        column: number,
+        cells: Cells,
+        scoreInfos: ScoreInfos = {
+            undosCount: 0,
+            flaggedIndexes: [],
+        },
+        previousCells?: Cells
+    ) {
         if (!Number.isInteger(column)) {
             throw new TypeError('column count must be an integer');
         }
@@ -186,6 +203,7 @@ export class Grid {
         this._column = column;
         this._cells = cells;
         this._previousCells = previousCells;
+        this._scoreInfos = scoreInfos;
     }
 
     [Symbol.iterator]() {
@@ -199,12 +217,46 @@ export class Grid {
         return this._cells.map(callbackfn);
     }
 
-    get previousCells() {
-        return this._previousCells;
+    get canUndo() {
+        return typeof this._previousCells !== 'undefined';
     }
 
-    get canUndo() {
-        return typeof this.previousCells !== 'undefined';
+    get startTime() {
+        return this._scoreInfos.startTime;
+    }
+
+    getCurrentScore() {
+        const maxScore = this._cells.length;
+        if (!this._scoreInfos.startTime) {
+            return maxScore;
+        }
+        const preciseScore = Math.max(
+            maxScore -
+                this._scoreInfos.undosCount * COST_PER_UNDO -
+                this._scoreInfos.flaggedIndexes.length * COST_PER_FLAG -
+                (process.env.NODE_ENV === 'test'
+                    ? 0
+                    : ((Date.now() - this._scoreInfos.startTime) / 1000) *
+                      COST_PER_SECOND),
+            0
+        );
+        return Math.round(preciseScore * 10) / 10;
+    }
+
+    startGame() {
+        if (!this._scoreInfos.startTime) {
+            this._scoreInfos.startTime = Date.now();
+        }
+    }
+
+    scoreAddFlag(cellIndex: number) {
+        if (this._scoreInfos.flaggedIndexes.indexOf(cellIndex) === -1) {
+            this._scoreInfos.flaggedIndexes.push(cellIndex);
+        }
+    }
+
+    scoreAddUndo() {
+        this._scoreInfos.undosCount += 1;
     }
 
     cellByIndex(index: number): Cell | undefined {
@@ -216,6 +268,8 @@ export class Grid {
     }
 
     sendActionToCell(cellIndex: number, action: CellAction): Grid {
+        this.startGame();
+
         let cells = [...this._cells];
         const cell = cells[cellIndex];
 
@@ -223,15 +277,24 @@ export class Grid {
             if (cell.dug) return this;
             cells = Grid.digAndExploreCells(this._column, cells, cellIndex);
         } else {
+            if (action === 'flag') {
+                this.scoreAddFlag(cellIndex);
+            }
             cells[cellIndex] = cell[action]();
         }
 
-        return new Grid(this._column, cells, this._cells);
+        return new Grid(this._column, cells, this._scoreInfos, this._cells);
     }
 
     undo() {
-        if (this.previousCells) {
-            return new Grid(this._column, this.previousCells);
+        if (this._previousCells) {
+            this.scoreAddUndo();
+
+            return new Grid(
+                this._column,
+                this._previousCells,
+                this._scoreInfos
+            );
         }
         return this;
     }

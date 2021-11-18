@@ -91,9 +91,15 @@ describe(Grid, () => {
 
         test('it can have previousCells, but they must be the same length as the current ones', () => {
             const cell = Cell.withoutBomb();
-            expect(() => new Grid(2, [cell, cell], [cell])).toThrowError(
-                RangeError
-            );
+            expect(
+                () =>
+                    new Grid(
+                        2,
+                        [cell, cell],
+                        { flaggedIndexes: [], undosCount: 0 },
+                        [cell]
+                    )
+            ).toThrowError(RangeError);
         });
 
         test('it informs the cells about their trapped neighborhood', () => {

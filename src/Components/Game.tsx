@@ -25,6 +25,10 @@ export const Game: React.FunctionComponent = () => {
     const { grid, updateGridCellStatus, undoGrid } =
         React.useContext(GameContext);
 
+    const startTime = useMemo(() => {
+        return grid.startTime;
+    }, [grid.startTime]);
+
     const gameOver = useMemo(
         () =>
             (grid.isDefeated() && 'defeat') ||
@@ -32,6 +36,10 @@ export const Game: React.FunctionComponent = () => {
             false,
         [grid]
     );
+
+    const finalScore = useMemo(() => {
+        return gameOver === 'victory' && grid.getCurrentScore();
+    }, [gameOver]);
 
     const handleClick = useCallback(
         (index: number, action: CellAction) => {
@@ -46,9 +54,14 @@ export const Game: React.FunctionComponent = () => {
 
     return (
         <GameWrapper>
-            <Actions canUndo={grid.canUndo} onClickUndo={handleClickUndo} />
+            <Actions
+                canUndo={grid.canUndo}
+                onClickUndo={handleClickUndo}
+                startTime={startTime}
+                gameOver={!!gameOver}
+            />
             <GameGridWrapper>
-                <GameOver gameOver={gameOver} />
+                <GameOver gameOver={gameOver} score={finalScore} />
                 <Grid
                     grid={grid}
                     onClickCell={handleClick}

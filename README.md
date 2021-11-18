@@ -51,10 +51,10 @@ En repartant de cette base, créez votre version du jeu.
 ### Hardcore
 
 -   [x] Très sympa ce jeu, mais ce serait encore mieux si l'on pouvait annuler la dernière action.
--   [ ] Après quelques parties vous vous apercevez que sans un calcul du score, vous n'avez aucune idée de votre progression. Vous décidez alors de déterminer le score selon les règles suivantes :
-    -   [ ] le score ne peut être supérieur au nombre de cases
-    -   [ ] le score ne peut être inférieur à zero
-    -   [ ] le score de départ est égal au score maximum
-    -   [ ] le retour en arrière diminue le score de 5 points
-    -   [ ] chaque drapeau utilisé diminue le score de 1 point
-    -   [ ] chaque seconde passée diminue le score de 0.2 point
+-   [x] Après quelques parties vous vous apercevez que sans un calcul du score, vous n'avez aucune idée de votre progression. Vous décidez alors de déterminer le score selon les règles suivantes :
+    -   [x] le score ne peut être supérieur au nombre de cases
+    -   [x] le score ne peut être inférieur à zero
+    -   [x] le score de départ est égal au score maximum
+    -   [x] le retour en arrière diminue le score de 5 points
+    -   [x] chaque drapeau utilisé diminue le score de 1 point
+    -   [x] chaque seconde passée diminue le score de 0.2 point

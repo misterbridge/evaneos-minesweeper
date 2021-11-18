@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 type GameOverProps = {
     gameOver: false | 'victory' | 'defeat';
+    score: number | false;
 };
 
 const gameOverMapping: {
@@ -23,7 +24,16 @@ const GameOverWrapper = styled.div`
     box-shadow: 0px 0px 100px -20px black;
 `;
 
-export const GameOver: React.FunctionComponent<GameOverProps> = (props) => {
-    if (!props.gameOver) return null;
-    return <GameOverWrapper>{gameOverMapping[props.gameOver]}</GameOverWrapper>;
+export const GameOver: React.FunctionComponent<GameOverProps> = ({
+    gameOver,
+    score,
+}) => {
+    if (!gameOver) return null;
+    const scoreString = score && <>&nbsp;-&nbsp;{score}pts</>;
+    return (
+        <GameOverWrapper>
+            {gameOverMapping[gameOver]}
+            {scoreString}
+        </GameOverWrapper>
+    );
 };
