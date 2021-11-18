@@ -203,6 +203,10 @@ export class Grid {
         return this._previousCells;
     }
 
+    get canUndo() {
+        return typeof this.previousCells !== 'undefined';
+    }
+
     cellByIndex(index: number): Cell | undefined {
         return this._cells[index];
     }
@@ -223,10 +227,6 @@ export class Grid {
         }
 
         return new Grid(this._column, cells, this._cells);
-    }
-
-    canUndo() {
-        return typeof this.previousCells !== 'undefined';
     }
 
     undo() {

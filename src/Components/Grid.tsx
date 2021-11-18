@@ -4,12 +4,13 @@ import styled from 'styled-components';
 import { CellAction } from '../Domain/Cell';
 
 import { GameContext } from '../GameContext';
+import { Actions } from './Actions';
 import { Cell, CELL_WIDTH } from './Cell';
 import { Game } from './Game';
 
 const GameWrapper = styled.div`
-    position: relative;
     display: flex;
+    flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
@@ -20,6 +21,7 @@ interface GridWrapperProps {
     readonly column: number;
 }
 const GridWrapper = styled.div<GridWrapperProps>`
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     width: ${({ column }) => `calc(${CELL_WIDTH}px * ${column})`};
@@ -53,15 +55,9 @@ export const Grid: React.FunctionComponent = () => {
 
     return (
         <GameWrapper>
-            <Game gameOver={gameOver} />
-            <button
-                type="button"
-                onClick={handleClickUndo}
-                disabled={!grid.canUndo()}
-            >
-                Undo
-            </button>
+            <Actions canUndo={grid.canUndo} onClickUndo={handleClickUndo} />
             <GridWrapper column={grid.column}>
+                <Game gameOver={gameOver} />
                 {grid.map((cell, index) => (
                     <Cell
                         key={index}
