@@ -40,17 +40,17 @@ En repartant de cette base, créez votre version du jeu.
 
 ### Facile
 
--   [ ] Améliorez visuellement le plateau de jeu.
+-   [x] Améliorez visuellement le plateau de jeu.
 -   [x] Les conditions de victoire sont fausses, corrigez-les ainsi que les tests associés.
 
 ### Medium
 
--   [ ] Lors d'un clic sur une case, affichez le nombre de mines adjacentes sur la grille.
--   [ ] Pour faciliter la vie du joueur, on veut faire en sorte qu'un clic sur une case vide dévoile la zone l'entourant, jusqu'à ce que toutes les cases limitrophes de la zone soient adjacentes à au moins une mine et comportent un numéro.
+-   [x] Lors d'un clic sur une case, affichez le nombre de mines adjacentes sur la grille.
+-   [x] Pour faciliter la vie du joueur, on veut faire en sorte qu'un clic sur une case vide dévoile la zone l'entourant, jusqu'à ce que toutes les cases limitrophes de la zone soient adjacentes à au moins une mine et comportent un numéro.
 
 ### Hardcore
 
--   [ ] Très sympa ce jeu, mais ce serait encore mieux si l'on pouvait annuler la dernière action.
+-   [x] Très sympa ce jeu, mais ce serait encore mieux si l'on pouvait annuler la dernière action.
 -   [ ] Après quelques parties vous vous apercevez que sans un calcul du score, vous n'avez aucune idée de votre progression. Vous décidez alors de déterminer le score selon les règles suivantes :
     -   [ ] le score ne peut être supérieur au nombre de cases
     -   [ ] le score ne peut être inférieur à zero
